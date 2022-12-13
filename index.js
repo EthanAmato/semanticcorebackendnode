@@ -1,15 +1,11 @@
 require('dotenv').config()
 
-const { getTranslations, getEntriesByLanguageAndCluster, getClusterByKeyword } = require('./services/translationControllerMethods')
-
-const { response } = require('express');
 const express = require('express')
 const app = express()
+const routes = require('./routes')
 const port = 3000
 
-app.get('/translations', getTranslations)
-app.get('/translations/:language/:clusterLabel', getEntriesByLanguageAndCluster)
-app.get('/translations/:language/:keyword?', getClusterByKeyword)
+app.use('/api',routes);
 
 
 app.listen(port, () => {

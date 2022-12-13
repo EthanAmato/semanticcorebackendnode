@@ -12,15 +12,6 @@ const pool = new Pool({
     ssl: true,
 });
 
-const getTranslations = (request, response) => {
-    pool.query("SELECT * FROM semcore_output where language='Bulgarian' limit 100;", (error, results) => {
-        if (error) {
-            throw error;
-        }
-        response.status(200).json(results.rows)
-    })
-}
-
 
 const getEntriesByLanguageAndCluster = (request, response) => {
     const language = request.params.language;
@@ -37,51 +28,24 @@ const getEntriesByLanguageAndCluster = (request, response) => {
         })
 }
 
-
-// @GetMapping("/translations/{language}")
-// public ResponseEntity<List<TranslationEntry>> getClusterByKeyword(
-//         @PathVariable("language") String language, @RequestParam(required = false) String keyword) {
-//         List<TranslationEntry> cluster = translationService.getClusterByKeyword(language, keyword);
-//         if(cluster.isEmpty()) {
-//             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//         } else {
-//             return new ResponseEntity<List<TranslationEntry>>(cluster, HttpStatus.OK);
-//         }
-// }
-// 	@Query("SELECT t.clusterLabels FROM TranslationEntry t WHERE t.language = :language and t.translated = :translated")
-// 	List<String> findClusterByKeyword(@Param("language") String language,
-// 								@Param("translated") String keyWord);
-
 const getClusterByKeyword = (request, response) => {
     const language = request.params.language;
     const keyword = request.query.keyword;
-
-    pool.query(`SELECT cluster_labels FROM semcore_output WHERE language = '${language}' AND translated = '${keyword}'`,
-        (error, results) => {
-            if (error) {
-                throw error
-            }
-            // response.status(200).json(results.rows)
-            for (let entry of results.rows) {
-                if (entry.cluster_labels !== "-1") {
-                    console.log(`SELECT * FROM semcore_output WHERE language = '${language}' AND cluster_labels = ${entry.cluster_labels}`)
-                    pool.query(`SELECT * FROM semcore_output WHERE language = '${language}' AND cluster_labels = ${entry.cluster_labels};`), 
-                    (error, results) => {
-                            console.log(results.rows)
-                            console.log("inside")
-                            this.response.status(200).json(results.rows)
-                            
-                    };
-                    
-                    break;
+    pool.query('BEGIN').then(() => {
+        return pool.query(`SELECT cluster_labels FROM semcore_output WHERE language = '${language}' AND translated = '${keyword}'`)
+        .then((result) => {
+            for (let entry of result.rows) {
+                if(entry.cluster_labels !== "-1") {
+                    return pool.query(`SELECT * FROM semcore_output WHERE language = '${language}' AND cluster_labels = ${entry.cluster_labels};`)
                 }
             }
-            console.log("Done with loop")
+        }).then((finalResults) => {
+            response.status(200).json(finalResults.rows)
         })
-} 
+    })
+}
 
 module.exports = {
-    getTranslations,
     getEntriesByLanguageAndCluster,
     getClusterByKeyword
 };
