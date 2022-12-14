@@ -7,7 +7,7 @@ const port = 3000
 
 // Add Access Control Allow Origin headers
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.setHeader("Access-Control-Allow-Origin", "https://semantic-core-frontend-dsta5s6jc-ethanamato.vercel.app");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
