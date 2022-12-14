@@ -10,7 +10,7 @@ const port = 3000
 
 // Add Access Control Allow Origin headers
 const corsOptions = {
-  origin: ["https://semantic-core-frontend.vercel.app","http://localhost:3000"],
+  origin: ["https://semantic-core-frontend.vercel.app","http://localhost:3000","https://semantic-core-frontend-6t0ui9hvn-ethanamato.vercel.app"],
   optionsSuccessStatus: 200 // For legacy browser support
 }
 
