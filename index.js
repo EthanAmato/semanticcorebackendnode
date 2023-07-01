@@ -6,8 +6,6 @@ const routes = require('./routes')
 const port = 3000
 
 
-
-
 // Add Access Control Allow Origin headers
 const corsOptions = {
   origin: ["https://semantic-core-frontend.vercel.app","http://localhost:3000","https://semantic-core-frontend-6t0ui9hvn-ethanamato.vercel.app"],
@@ -23,5 +21,3 @@ app.listen(port, () => {
 
 
 
-
- 
