@@ -36,37 +36,37 @@ async function getEntriesByLanguageAndCluster(request, response) {
     response.status(500).json({ error: "Internal server error" });
   }
 }
-
 async function getClusterByKeyword(request, response) {
   const language = request.params.language;
   const keyword = request.query.keyword;
 
   try {
     await sql.begin(async (transaction) => {
-      const result = await transaction.query`
-          SELECT cluster_labels FROM semcore_output
-          WHERE language = ${language} AND translated = ${keyword}
-        `;
+      const result = await transaction`
+        SELECT cluster_labels FROM semcore_output
+        WHERE language = ${language} AND translated = ${keyword}
+      `;
 
-      for (const entry of result.rows) {
+      for (const entry of result) {  // Adjusted to iterate directly over `result` as it is an array
         if (entry.cluster_labels !== "-1") {
-          const finalResults = await transaction.query`
-              SELECT * FROM semcore_output
-              WHERE language = ${language} AND cluster_labels = ${entry.cluster_labels}
-            `;
+          const finalResults = await transaction`
+            SELECT * FROM semcore_output
+            WHERE language = ${language} AND cluster_labels = ${entry.cluster_labels}
+          `;
 
           response.status(200).json(finalResults);
-          return;
+          return;  // This return will exit the function after sending the first non "-1" cluster result
         }
       }
-    });
 
-    response.status(200).json([]);
+      response.status(200).json([]);  // Moved this inside the `sql.begin` block to ensure it only gets called if no clusters are found
+    });
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Internal server error" });
   }
 }
+
 
 module.exports = {
   getEntriesByLanguageAndCluster,
